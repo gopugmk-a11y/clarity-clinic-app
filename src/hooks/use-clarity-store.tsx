@@ -17,7 +17,11 @@ import {
   query, 
   orderBy,
   writeBatch,
-  getDocs
+  getDocs,
+  runTransaction,
+  where,
+  limit,
+  getDoc
 } from "firebase/firestore";
 
 
@@ -97,11 +101,39 @@ export const useClarityStore = (): ClarityStore => {
   };
 
   const addPrescription = async (p: Omit<Prescription, 'id'>) => {
-    if(!db) return;
-    await addDoc(collection(db, "prescriptions"), p);
+    if(!db) throw new Error("Database not connected");
+
+    await runTransaction(db, async (transaction) => {
+      // 1. Find the inventory item
+      const inventoryQuery = query(
+        collection(db, "inventory"),
+        where("name", "==", p.medicine),
+        limit(1)
+      );
+      const inventorySnapshot = await getDocs(inventoryQuery);
+      if (inventorySnapshot.empty) {
+        throw new Error(`Medicine "${p.medicine}" not found in inventory.`);
+      }
+      const inventoryDocRef = inventorySnapshot.docs[0].ref;
+      const inventoryItem = inventorySnapshot.docs[0].data() as InventoryItem;
+
+      // 2. Check stock
+      if (inventoryItem.quantity < p.quantity) {
+        throw new Error(`Not enough stock for ${p.medicine}. Only ${inventoryItem.quantity} left.`);
+      }
+
+      // 3. Update inventory quantity
+      const newQuantity = inventoryItem.quantity - p.quantity;
+      transaction.update(inventoryDocRef, { quantity: newQuantity });
+      
+      // 4. Create the new prescription
+      const prescriptionRef = doc(collection(db, "prescriptions"));
+      transaction.set(prescriptionRef, p);
+    });
   };
 
   const deletePrescription = async (id: string) => {
+    // Note: This does not restock inventory. A more complex implementation could handle this.
     if(!db) return;
     await deleteDoc(doc(db, "prescriptions", id));
   };

@@ -23,6 +23,7 @@ export type Prescription = {
   doctor: string;
   patient: string;
   medicine: string;
+  quantity: number;
   notes?: string;
 };
 

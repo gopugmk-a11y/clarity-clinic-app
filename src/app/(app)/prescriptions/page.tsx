@@ -34,19 +34,21 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon, Loader2, MoreHorizontal, Search, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const formSchema = z.object({
   date: z.date({ required_error: "A date is required." }),
   doctor: z.string().min(1, "Doctor name is required."),
   patient: z.string().min(1, "Patient name is required."),
   medicine: z.string().min(1, "Medicine is required."),
+  quantity: z.coerce.number().int().min(1, "Quantity must be at least 1."),
   notes: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export default function PrescriptionsPage() {
-  const { prescriptions, addPrescription, deletePrescription, setSearchQuery } = useClarity();
+  const { prescriptions, addPrescription, deletePrescription, inventory, setSearchQuery } = useClarity();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -57,6 +59,7 @@ export default function PrescriptionsPage() {
       doctor: "",
       patient: "",
       medicine: "",
+      quantity: 1,
       notes: "",
     },
   });
@@ -67,10 +70,10 @@ export default function PrescriptionsPage() {
         ...values,
         date: format(values.date, 'yyyy-MM-dd'),
       });
-      toast({ title: "Prescription saved!" });
-      form.reset({ date: new Date(), doctor: "", patient: "", medicine: "", notes: "" });
-    } catch (e) {
-       toast({ title: "Error", description: "Could not save prescription.", variant: "destructive" });
+      toast({ title: "Prescription saved!", description: "Inventory has been updated." });
+      form.reset({ date: new Date(), doctor: "", patient: "", medicine: "", quantity: 1, notes: "" });
+    } catch (e: any) {
+       toast({ title: "Error", description: e.message || "Could not save prescription.", variant: "destructive" });
     }
   }
   
@@ -97,7 +100,8 @@ export default function PrescriptionsPage() {
                   <TableHead>Date</TableHead>
                   <TableHead>Doctor</TableHead>
                   <TableHead>Patient</TableHead>
-                  <TableHead>Medicine(s)</TableHead>
+                  <TableHead>Medicine</TableHead>
+                  <TableHead>Quantity</TableHead>
                   <TableHead>Notes</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -115,6 +119,7 @@ export default function PrescriptionsPage() {
                           <Search className="ml-2 h-3 w-3" />
                         </Button>
                       </TableCell>
+                      <TableCell>{p.quantity}</TableCell>
                       <TableCell className="max-w-xs truncate">{p.notes || '-'}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>
@@ -132,7 +137,7 @@ export default function PrescriptionsPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center h-24">
+                    <TableCell colSpan={7} className="text-center h-24">
                       No prescriptions found.
                     </TableCell>
                   </TableRow>
@@ -150,7 +155,7 @@ export default function PrescriptionsPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                   <FormField
                     control={form.control}
                     name="date"
@@ -180,11 +185,37 @@ export default function PrescriptionsPage() {
                   <FormField control={form.control} name="patient" render={({ field }) => (
                       <FormItem><FormLabel>Patient Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
-                  <FormField control={form.control} name="medicine" render={({ field }) => (
-                      <FormItem><FormLabel>Medicine(s)</FormLabel><FormControl><Input placeholder="e.g., Paracetamol, Amoxicillin" {...field} /></FormControl><FormMessage /></FormItem>
+
+                  <FormField
+                    control={form.control}
+                    name="medicine"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Medicine</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a medicine from inventory" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {inventory.filter(i => i.quantity > 0).map(item => (
+                              <SelectItem key={item.id} value={item.name}>
+                                {item.name} ({item.quantity} left)
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="quantity" render={({ field }) => (
+                      <FormItem><FormLabel>Quantity</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} /></FormControl><FormMessage /></FormItem>
                   )} />
+
                    <FormField control={form.control} name="notes" render={({ field }) => (
-                      <FormItem className="md:col-span-2"><FormLabel>Notes</FormLabel><FormControl><Textarea placeholder="Dosage, advice, etc." {...field} /></FormControl><FormMessage /></FormItem>
+                      <FormItem className="md:col-span-2 lg:col-span-3"><FormLabel>Dosage / Notes</FormLabel><FormControl><Textarea placeholder="e.g., 1 tablet twice a day for 5 days" {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
                 <div className="flex justify-end gap-4">

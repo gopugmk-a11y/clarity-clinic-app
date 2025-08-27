@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClarityClinic - Inventory</title>
+    <style>
+        :root {
+            --background: 220 56% 8%;
+            --foreground: 220 14% 91%;
+            --card: 222 47% 11%;
+            --card-foreground: 220 14% 91%;
+            --primary: 195 78% 50%;
+            --border: 221 21% 28%;
+            --radius: 1rem;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            margin: 0;
+            padding: 2rem;
+            background: linear-gradient(180deg, hsl(var(--background)), #101826 40%, hsl(var(--background)));
+        }
+        .tabs-container { width: 100%; }
+        .tabs-list { display: flex; border-bottom: 1px solid hsl(var(--border)); margin-bottom: 1.5rem; }
+        .tab-trigger {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+        .tab-trigger.active {
+            color: hsl(var(--primary));
+            border-bottom-color: hsl(var(--primary));
+        }
+        .card {
+            background-color: hsl(var(--card));
+            color: hsl(var(--card-foreground));
+            border-radius: var(--radius);
+            border: 1px solid hsl(var(--border));
+        }
+        .card-header { padding: 1.5rem; }
+        .card-title { font-size: 1.5rem; font-weight: 600; }
+        .card-content { padding: 1.5rem; padding-top: 0; }
+        table {
+            width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;
+        }
+        th, td { padding: 1rem; vertical-align: middle; border-bottom: 1px solid hsl(var(--border)); }
+        tbody tr:last-child td { border-bottom: 0; }
+        th { color: #888; font-weight: 500; }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="tabs-container">
+        <div class="tabs-list">
+            <button class="tab-trigger active">View Inventory</button>
+            <button class="tab-trigger">Add Item</button>
+        </div>
+        <div>
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">Pharmacy Inventory</h2></div>
+                <div class="card-content">
+                    <table>
+                        <thead>
+                            <tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Supplier</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Aspirin 81mg</td><td>B-12345</td><td>2025-12-31</td><td>500</td><td>Pharma Inc.</td></tr>
+                            <tr><td>Amoxicillin 500mg</td><td>C-67890</td><td>2024-08-31</td><td>150</td><td>MedSupply</td></tr>
+                            <tr><td>Metformin 1000mg</td><td>D-54321</td><td>2026-02-28</td><td>300</td><td>Pharma Inc.</td></tr>
+                            <tr><td>Atorvastatin 20mg</td><td>E-11223</td><td>2025-05-31</td><td>220</td><td>Global Meds</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

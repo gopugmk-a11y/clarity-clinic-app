@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClarityClinic - Transactions</title>
+    <style>
+        :root {
+            --background: 220 56% 8%;
+            --foreground: 220 14% 91%;
+            --card: 222 47% 11%;
+            --card-foreground: 220 14% 91%;
+            --primary: 195 78% 50%;
+            --muted: 221 18% 65%;
+            --muted-foreground: 221 18% 65%;
+            --destructive: 350 88% 70%;
+            --border: 221 21% 28%;
+            --radius: 1rem;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            margin: 0;
+            padding: 2rem;
+            background: linear-gradient(180deg, hsl(var(--background)), #101826 40%, hsl(var(--background)));
+        }
+        .card {
+            background-color: hsl(var(--card));
+            color: hsl(var(--card-foreground));
+            border-radius: var(--radius);
+            border: 1px solid hsl(var(--border));
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+        }
+        .card-header { padding: 1.5rem; padding-bottom: 0.5rem; }
+        .card-title { font-size: 1.5rem; font-weight: 600; }
+        .card-content { padding: 1.5rem; padding-top: 0; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+        th, td { padding: 1rem; vertical-align: middle; }
+        thead tr { border-bottom: 1px solid hsl(var(--border)); }
+        tbody tr { border-bottom: 1px solid hsl(var(--border)); }
+        tbody tr:last-child { border-bottom: 0; }
+        th { color: hsl(var(--muted-foreground)); font-weight: 500; }
+        .text-right { text-align: right; }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            border: 1px solid transparent;
+            padding: 0.125rem 0.625rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-income {
+            background-color: rgba(52, 211, 153, 0.2);
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+        .badge-expense {
+            background-color: rgba(251, 113, 133, 0.2);
+            color: #fb7185;
+            border-color: rgba(251, 113, 133, 0.3);
+        }
+        .text-emerald-400 { color: #34d399; }
+        .text-rose-400 { color: #fb7185; }
+        .font-medium { font-weight: 500; }
+        .max-w-xs { max-width: 20rem; }
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">All Transactions</h2>
+        </div>
+        <div class="card-content">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th class="text-right">Amount</th>
+                        <th>Category</th>
+                        <th>Patient</th>
+                        <th>Payment</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2023-08-11</td>
+                        <td><span class="badge badge-income">Income</span></td>
+                        <td class="text-right font-medium text-emerald-400">₹1,400.00</td>
+                        <td>Pharmacy</td>
+                        <td>Aisha Khan</td>
+                        <td>Cash</td>
+                        <td class="max-w-xs truncate">Post-op medications and prescribed drugs</td>
+                    </tr>
+                    <tr>
+                        <td>2023-08-07</td>
+                        <td><span class="badge badge-income">Income</span></td>
+                        <td class="text-right font-medium text-emerald-400">₹900.00</td>
+                        <td>Consultation</td>
+                        <td>Rahul Kumar</td>
+                        <td>UPI</td>
+                        <td class="max-w-xs truncate">Follow-up consultation regarding previous treatment</td>
+                    </tr>
+                    <tr>
+                        <td>2023-08-06</td>
+                        <td><span class="badge badge-expense">Expense</span></td>
+                        <td class="text-right font-medium text-rose-400">₹650.00</td>
+                        <td>Utilities</td>
+                        <td>-</td>
+                        <td>UPI</td>
+                        <td class="max-w-xs truncate">Electricity + Water bill for the clinic</td>
+                    </tr>
+                    <tr>
+                        <td>2023-08-05</td>
+                        <td><span class="badge badge-expense">Expense</span></td>
+                        <td class="text-right font-medium text-rose-400">₹2,200.00</td>
+                        <td>Rent</td>
+                        <td>-</td>
+                        <td>Bank Transfer</td>
+                        <td class="max-w-xs truncate">Clinic rent</td>
+                    </tr>
+                    <tr>
+                        <td>2023-07-22</td>
+                        <td><span class="badge badge-income">Income</span></td>
+                        <td class="text-right font-medium text-emerald-400">₹1,200.00</td>
+                        <td>Diagnostics</td>
+                        <td>Neha Gupta</td>
+                        <td>Cash</td>
+                        <td class="max-w-xs truncate">ECG + Lab</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

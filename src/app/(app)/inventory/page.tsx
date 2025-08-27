@@ -60,13 +60,17 @@ export default function InventoryPage() {
     },
   });
 
-  function onSubmit(values: FormValues) {
-    addInventoryItem({
-      ...values,
-      expiry: format(values.expiry, 'yyyy-MM-dd'),
-    });
-    toast({ title: "Inventory item added!" });
-    form.reset({ name: "", batch: "", expiry: new Date(), quantity: 0, price: 0, supplier: "" });
+  async function onSubmit(values: FormValues) {
+    try {
+      await addInventoryItem({
+        ...values,
+        expiry: format(values.expiry, 'yyyy-MM-dd'),
+      });
+      toast({ title: "Inventory item added!" });
+      form.reset({ name: "", batch: "", expiry: new Date(), quantity: 0, price: 0, supplier: "" });
+    } catch(e) {
+      toast({ title: "Error", description: "Could not add inventory item.", variant: "destructive" });
+    }
   }
 
   return (
@@ -134,7 +138,7 @@ export default function InventoryPage() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <form onSubmit={form. handleSubmit(onSubmit)} className="space-y-8">
                 <div className="grid md:grid-cols-2 gap-8">
                   <FormField control={form.control} name="name" render={({ field }) => (
                     <FormItem><FormLabel>Medicine Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>

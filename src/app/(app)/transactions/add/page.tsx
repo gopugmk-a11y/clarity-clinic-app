@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -75,12 +76,12 @@ export default function AddTransactionPage() {
     if (notes && notes.length > 10) {
       setIsSuggesting(true);
       try {
-        const suggestion = await getCategorySuggestion(notes);
-        if (suggestion.category && transactionCategories.includes(suggestion.category as any)) {
-          form.setValue("category", suggestion.category, { shouldValidate: true });
+        const result = await getCategorySuggestion(notes);
+        if (result.success && result.category && transactionCategories.includes(result.category as any)) {
+          form.setValue("category", result.category, { shouldValidate: true });
           toast({
             title: "AI Suggestion",
-            description: `We've suggested the category "${suggestion.category}" based on your notes.`,
+            description: `We've suggested the category "${result.category}" based on your notes.`,
           });
         }
       } catch (error) {
@@ -92,13 +93,17 @@ export default function AddTransactionPage() {
   }, 1000), [form, toast]);
 
 
-  function onSubmit(values: FormValues) {
-    addTransaction({
-      ...values,
-      date: format(values.date, 'yyyy-MM-dd'),
-    });
-    toast({ title: "Transaction added!", description: "Your transaction has been saved." });
-    router.push('/transactions');
+  async function onSubmit(values: FormValues) {
+    try {
+      await addTransaction({
+        ...values,
+        date: format(values.date, 'yyyy-MM-dd'),
+      });
+      toast({ title: "Transaction added!", description: "Your transaction has been saved." });
+      router.push('/transactions');
+    } catch (e) {
+      toast({ title: "Error", description: "Could not add transaction.", variant: "destructive" });
+    }
   }
 
   return (

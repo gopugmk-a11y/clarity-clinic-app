@@ -7,34 +7,19 @@ import { sampleTransactions } from '@/lib/seed-data';
 import { useToast } from './use-toast';
 import React from 'react';
 import { format } from 'date-fns';
+import { db } from '@/lib/firebase';
+import { 
+  collection, 
+  onSnapshot, 
+  addDoc, 
+  deleteDoc, 
+  doc, 
+  query, 
+  orderBy,
+  writeBatch,
+  getDocs
+} from "firebase/firestore";
 
-const useLocalStorage = <T,>(key: string, initialValue: T): [T, (value: T) => void] => {
-  const [storedValue, setStoredValue] = useState<T>(() => {
-    if (typeof window === 'undefined') {
-      return initialValue;
-    }
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error(error);
-      return initialValue;
-    }
-  });
-
-  const setValue = (value: T) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      if (typeof window !== 'undefined') {
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-  return [storedValue, setValue];
-};
 
 type ClarityStore = {
   transactions: Transaction[];
@@ -44,54 +29,84 @@ type ClarityStore = {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   setCurrency: (currency: Currency) => void;
-  addTransaction: (tx: Omit<Transaction, 'id'>) => void;
-  deleteTransaction: (id: string) => void;
-  addPrescription: (p: Omit<Prescription, 'id'>) => void;
-  deletePrescription: (id: string) => void;
-  addInventoryItem: (item: Omit<InventoryItem, 'id' | 'price'> & { price?: number }) => void;
-  deleteInventoryItem: (id: string) => void;
-  seedData: () => void;
-  clearData: () => void;
+  addTransaction: (tx: Omit<Transaction, 'id'>) => Promise<void>;
+  deleteTransaction: (id: string) => Promise<void>;
+  addPrescription: (p: Omit<Prescription, 'id'>) => Promise<void>;
+  deletePrescription: (id: string) => Promise<void>;
+  addInventoryItem: (item: Omit<InventoryItem, 'id' | 'price'> & { price?: number }) => Promise<void>;
+  deleteInventoryItem: (id: string) => Promise<void>;
+  seedData: () => Promise<void>;
+  clearData: () => Promise<void>;
 };
 
 export const useClarityStore = (): ClarityStore => {
-  const [transactions, setTransactions] = useLocalStorage<Transaction[]>('clarity.transactions', []);
-  const [prescriptions, setPrescriptions] = useLocalStorage<Prescription[]>('clarity.prescriptions', []);
-  const [inventory, setInventory] = useLocalStorage<InventoryItem[]>('clarity.inventory', []);
-  const [currency, setCurrency] = useLocalStorage<Currency>('clarity.currency', currencies[0]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [currency, setCurrency] = useState<Currency>(currencies[0]);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
-  const addTransaction = (tx: Omit<Transaction, 'id'>) => {
-    const newTx = { ...tx, id: crypto.randomUUID() };
-    setTransactions([newTx, ...transactions]);
+  useEffect(() => {
+    if(!db) return;
+    const txQuery = query(collection(db, 'transactions'), orderBy('date', 'desc'));
+    const unsubscribeTx = onSnapshot(txQuery, (snapshot) => {
+      const data: Transaction[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction));
+      setTransactions(data);
+    });
+
+    const pQuery = query(collection(db, 'prescriptions'), orderBy('date', 'desc'));
+    const unsubscribeP = onSnapshot(pQuery, (snapshot) => {
+        const data: Prescription[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Prescription));
+        setPrescriptions(data);
+    });
+
+    const iQuery = query(collection(db, 'inventory'), orderBy('name', 'asc'));
+    const unsubscribeI = onSnapshot(iQuery, (snapshot) => {
+        const data: InventoryItem[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InventoryItem));
+        setInventory(data);
+    });
+
+    return () => {
+      unsubscribeTx();
+      unsubscribeP();
+      unsubscribeI();
+    }
+  }, []);
+
+
+  const addTransaction = async (tx: Omit<Transaction, 'id'>) => {
+    if(!db) return;
+    await addDoc(collection(db, "transactions"), tx);
   };
 
-  const deleteTransaction = (id: string) => {
-    setTransactions(transactions.filter((tx) => tx.id !== id));
+  const deleteTransaction = async (id: string) => {
+    if(!db) return;
+    await deleteDoc(doc(db, "transactions", id));
   };
 
-  const addPrescription = (p: Omit<Prescription, 'id'>) => {
-    const newP = { ...p, id: crypto.randomUUID() };
-    setPrescriptions([newP, ...prescriptions]);
+  const addPrescription = async (p: Omit<Prescription, 'id'>) => {
+    if(!db) return;
+    await addDoc(collection(db, "prescriptions"), p);
   };
 
-  const deletePrescription = (id: string) => {
-    setPrescriptions(prescriptions.filter((p) => p.id !== id));
+  const deletePrescription = async (id: string) => {
+    if(!db) return;
+    await deleteDoc(doc(db, "prescriptions", id));
   };
 
-  const addInventoryItem = (item: Omit<InventoryItem, 'id' | 'price'> & { price?: number }) => {
+  const addInventoryItem = async (item: Omit<InventoryItem, 'id' | 'price'> & { price?: number }) => {
+    if(!db) return;
     const { price, ...rest } = item;
-    const newItem = { ...rest, id: crypto.randomUUID() };
-    setInventory([newItem, ...inventory]);
+    await addDoc(collection(db, "inventory"), rest);
 
     if (price && price > 0) {
-      addTransaction({
+      await addTransaction({
         date: format(new Date(), 'yyyy-MM-dd'),
         type: 'Expense',
         amount: price,
         category: 'Supplies',
-        payment: 'Cash', // Default payment method for inventory purchases
+        payment: 'Cash', 
         notes: `Purchased ${item.quantity} x ${item.name}`,
       });
       toast({
@@ -101,26 +116,50 @@ export const useClarityStore = (): ClarityStore => {
     }
   };
 
-  const deleteInventoryItem = (id: string) => {
-    setInventory(inventory.filter((item) => item.id !== id));
+  const deleteInventoryItem = async (id: string) => {
+    if(!db) return;
+    await deleteDoc(doc(db, "inventory", id));
   };
   
-  const seedData = useCallback(() => {
-    const currentIds = new Set(transactions.map(t => `${t.date}|${t.amount}|${t.type}|${t.category}`));
-    const newTxs = sampleTransactions.filter(t => !currentIds.has(`${t.date}|${t.amount}|${t.type}|${t.category}`));
-    const updatedTxs = [...transactions, ...newTxs].sort((a,b)=> (a.date < b.date ? 1 : -1));
-    setTransactions(updatedTxs);
-    toast({ title: "Sample Data Loaded", description: `${newTxs.length} new transactions have been added.` });
-  }, [transactions, setTransactions, toast]);
-
-  const clearData = useCallback(() => {
-    if (window.confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
-      setTransactions([]);
-      setPrescriptions([]);
-      setInventory([]);
-      toast({ title: "All Data Cleared", description: "Your local data has been removed." });
+  const seedData = useCallback(async () => {
+    if(!db) {
+        toast({ title: "Database not configured", description: "Please configure Firebase in src/lib/firebase.ts", variant: "destructive" });
+        return;
     }
-  }, [setTransactions, setPrescriptions, setInventory, toast]);
+    try {
+        const batch = writeBatch(db);
+        sampleTransactions.forEach(tx => {
+            const docRef = doc(collection(db, "transactions"));
+            batch.set(docRef, tx);
+        });
+        await batch.commit();
+        toast({ title: "Sample Data Loaded", description: `${sampleTransactions.length} new transactions have been added.` });
+    } catch(error) {
+        console.error("Error seeding data:", error);
+        toast({ title: "Error", description: "Could not load sample data.", variant: "destructive" });
+    }
+  }, [toast]);
+
+  const clearData = useCallback(async () => {
+    if (!db || !window.confirm('Are you sure you want to delete ALL data from Firestore? This cannot be undone.')) {
+        return;
+    }
+    try {
+        const collections = ['transactions', 'prescriptions', 'inventory'];
+        const batch = writeBatch(db);
+        for (const c of collections) {
+            const querySnapshot = await getDocs(collection(db, c));
+            querySnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+        }
+        await batch.commit();
+        toast({ title: "All Data Cleared", description: "Your Firestore data has been removed." });
+    } catch (error) {
+        console.error("Error clearing data:", error);
+        toast({ title: "Error", description: "Could not clear data.", variant: "destructive" });
+    }
+  }, [toast]);
 
   return {
     transactions,

@@ -61,13 +61,17 @@ export default function PrescriptionsPage() {
     },
   });
 
-  function onSubmit(values: FormValues) {
-    addPrescription({
-      ...values,
-      date: format(values.date, 'yyyy-MM-dd'),
-    });
-    toast({ title: "Prescription saved!" });
-    form.reset({ date: new Date(), doctor: "", patient: "", medicine: "", notes: "" });
+  async function onSubmit(values: FormValues) {
+    try {
+      await addPrescription({
+        ...values,
+        date: format(values.date, 'yyyy-MM-dd'),
+      });
+      toast({ title: "Prescription saved!" });
+      form.reset({ date: new Date(), doctor: "", patient: "", medicine: "", notes: "" });
+    } catch (e) {
+       toast({ title: "Error", description: "Could not save prescription.", variant: "destructive" });
+    }
   }
   
   const handleMedicineClick = (medicine: string) => {

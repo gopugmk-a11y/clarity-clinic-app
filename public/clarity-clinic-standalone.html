@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClarityClinic - Standalone</title>
+    <style>
+        :root {
+            --background: 220 56% 8%;
+            --foreground: 220 14% 91%;
+            --card: 222 47% 11%;
+            --card-foreground: 220 14% 91%;
+            --popover: 222 47% 11%;
+            --popover-foreground: 220 14% 91%;
+            --primary: 195 78% 50%;
+            --primary-foreground: 220 56% 8%;
+            --secondary: 222 47% 11%;
+            --secondary-foreground: 220 14% 91%;
+            --muted: 221 18% 65%;
+            --muted-foreground: 221 18% 65%;
+            --accent: 165 48% 40%;
+            --accent-foreground: 220 56% 8%;
+            --destructive: 350 88% 70%;
+            --destructive-foreground: 0 0% 98%;
+            --border: 221 21% 28%;
+            --input: 220 43% 10%;
+            --ring: 195 78% 50%;
+            --radius: 1rem;
+            --chart-1: 195 78% 50%;
+            --chart-2: 165 48% 40%;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            border-color: hsl(var(--border));
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            background: linear-gradient(180deg, hsl(var(--background)), #101826 40%, hsl(var(--background)));
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* --- Sidebar Styles --- */
+        .sidebar {
+            width: 256px;
+            background: linear-gradient(180deg, #0d1424, #0b1220);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid hsl(var(--border));
+            box-shadow: 0 1px 12px rgba(34, 211, 238, 0.07);
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo {
+            grid-place-items: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid hsl(var(--border) / 0.5);
+            background: linear-gradient(to bottom right, hsl(var(--primary)/0.2), transparent, hsl(var(--accent)/0.2));
+            display: grid;
+        }
+
+        .logo svg {
+            width: 20px;
+            height: 20px;
+            stroke: hsl(var(--primary));
+            stroke-width: 2.5;
+        }
+        
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .sidebar nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .nav-button {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            color: hsl(var(--muted-foreground));
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .nav-button:hover {
+            background-color: hsl(var(--accent) / 0.1);
+            color: hsl(var(--foreground));
+        }
+
+        .nav-button.active {
+            background-color: hsl(var(--primary) / 0.2);
+            color: white;
+            border: 1px solid hsl(var(--primary)/0.3);
+        }
+
+        .nav-button svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .separator {
+            height: 1px;
+            background-color: hsl(var(--border));
+            margin: 0.5rem 0;
+        }
+
+        /* --- Main Content Styles --- */
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .main-content > section {
+            display: none;
+        }
+
+        .main-content > section.active {
+            display: block;
+        }
+        
+        /* --- Component Styles --- */
+        .card {
+            background-color: hsl(var(--card));
+            border-radius: var(--radius);
+            border: 1px solid hsl(var(--border));
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .card-header { padding: 1.5rem; padding-bottom: 0; }
+        .card-content { padding: 1.5rem; }
+        .card-title { font-size: 1.5rem; font-weight: 600; tracking-tight; margin-bottom: 0.25rem;}
+        .card-description { color: hsl(var(--muted-foreground)); font-size: 0.875rem; }
+        
+        .grid { display: grid; }
+        .gap-4 { gap: 1rem; }
+        .gap-6 { gap: 1.5rem; }
+        .gap-8 { gap: 2rem; }
+        .md-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .lg-grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .lg-grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        .space-y-8 > * + * { margin-top: 2rem; }
+        
+        .table { width: 100%; text-align: left; border-collapse: collapse; }
+        .table th, .table td { padding: 1rem; border-bottom: 1px solid hsl(var(--border)); }
+        .table th { color: hsl(var(--muted-foreground)); font-weight: 500; }
+        .table tr:hover { background-color: hsl(var(--card)/0.5); }
+        .table tr:last-child td { border-bottom: none; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid hsl(var(--border));
+        }
+        .btn-primary { background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: hsl(var(--primary)); }
+        .btn-primary:hover { background-color: hsl(var(--primary)/0.9); }
+        .btn-outline { background-color: transparent; color: hsl(var(--foreground)); }
+        .btn-outline:hover { background-color: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+        .btn-destructive { background-color: hsl(var(--destructive)); color: hsl(var(--destructive-foreground)); border-color: hsl(var(--destructive)); }
+        .btn-ghost { border: none; background: transparent; }
+        .btn-ghost:hover { background-color: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .form-item { margin-bottom: 1.5rem; }
+        .form-label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid hsl(var(--input));
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: hsl(var(--ring));
+            box-shadow: 0 0 0 2px hsl(var(--ring)/0.5);
+        }
+        .form-textarea { min-height: 80px; }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+        .badge-income { background-color: hsl(145, 63%, 49%)/0.2; color: hsl(145, 63%, 69%); border-color: hsl(145, 63%, 49%)/0.3; }
+        .badge-expense { background-color: hsl(350, 88%, 70%)/0.2; color: hsl(350, 88%, 80%); border-color: hsl(350, 88%, 70%)/0.3; }
+        
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .justify-end { justify-content: flex-end; }
+        .flex-row { flex-direction: row; }
+        .font-bold { font-weight: 700; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-emerald-400 { color: #34d399; }
+        .text-rose-400 { color: #fb7185; }
+        .text-cyan-400 { color: #22d3ee; }
+        .text-xs { font-size: 0.75rem; }
+        .text-muted-foreground { color: hsl(var(--muted-foreground)); }
+        .text-right { text-align: right; }
+        .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .max-w-xs { max-width: 20rem; }
+        .text-destructive { color: hsl(var(--destructive)); }
+        .mb-4 { margin-bottom: 1rem; }
+        .p-0 { padding: 0; }
+        
+        .tabs { }
+        .tabs-list { display: flex; gap: 0.5rem; background-color: hsl(var(--muted)/0.2); padding: 0.25rem; border-radius: 0.5rem; width: max-content;}
+        .tab-trigger { padding: 0.5rem 1rem; border-radius: 0.375rem; cursor: pointer; border: none; background: transparent; color: hsl(var(--muted-foreground)); font-weight: 500; }
+        .tab-trigger.active { background-color: hsl(var(--card)); color: hsl(var(--foreground)); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .tab-content { margin-top: 1rem; }
+        .tab-content.hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v20M2 12h20"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-white">ClarityClinic</h1>
+                    <p class="text-xs text-muted-foreground">Standalone App</p>
+                </div>
+            </div>
+            <nav>
+                <button class="nav-button active" data-page="dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                    Dashboard
+                </button>
+                <button class="nav-button" data-page="transactions">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                    Transactions
+                </button>
+                 <button class="nav-button" data-page="appointments">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M12 14v4"/><path d="M12 14l2 2-2 2"/></svg>
+                    Appointments
+                </button>
+                <button class="nav-button" data-page="prescriptions">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/><path d="M12 12v6"/></svg>
+                    Prescriptions
+                </button>
+                <button class="nav-button" data-page="inventory">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    Inventory
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn btn-primary" id="add-transaction-btn-sidebar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    New Transaction
+                </button>
+                 <div class="separator"></div>
+                <button id="seedData" class="btn btn-outline">Load Sample Data</button>
+                <button id="clearData" class="btn btn-destructive">Clear All Data</button>
+            </div>
+        </aside>
+
+        <main class="main-content" id="main-content">
+            <!-- Dashboard Page -->
+            <section id="page-dashboard" class="active">
+                <div class="grid gap-4 md-grid-cols-2 lg-grid-cols-3">
+                    <div class="card">
+                        <div class="card-header flex flex-row items-center justify-between">
+                            <h3 class="card-title text-sm font-medium">Total Income</h3>
+                            <svg class="h-4 w-4 text-emerald-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 5 7 15l4 4 6-6"/></svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="text-3xl font-bold" id="kpi-income">₹0.00</div>
+                        </div>
+                    </div>
+                     <div class="card">
+                        <div class="card-header flex flex-row items-center justify-between">
+                            <h3 class="card-title text-sm font-medium">Total Expenses</h3>
+                            <svg class="h-4 w-4 text-rose-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 19 17 9l-4-4-6 6"/></svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="text-3xl font-bold" id="kpi-expense">₹0.00</div>
+                        </div>
+                    </div>
+                     <div class="card">
+                        <div class="card-header flex flex-row items-center justify-between">
+                            <h3 class="card-title text-sm font-medium">Net Income</h3>
+                            <svg class="h-4 w-4 text-cyan-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                        </div>
+                        <div class="card-content">
+                            <div class="text-3xl font-bold" id="kpi-net">₹0.00</div>
+                        </div>
+                    </div>
+                </div>
+                 <div class="space-y-6 mt-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recent Transactions</h3>
+                        </div>
+                        <div class="card-content p-0">
+                           <table class="table" id="dashboard-recent-tx">
+                                <thead>
+                                    <tr><th>Date</th><th>Type</th><th>Category</th><th class="text-right">Amount</th></tr>
+                                </thead>
+                                <tbody>
+                                   <tr><td colspan="4" class="text-center p-8 text-muted-foreground">No transactions yet.</td></tr>
+                                </tbody>
+                           </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Transactions Page -->
+            <section id="page-transactions">
+                <div class="tabs">
+                    <div class="tabs-list">
+                        <button class="tab-trigger active" data-tab="tx-list">View Transactions</button>
+                        <button class="tab-trigger" data-tab="tx-add">Add Transaction</button>
+                    </div>
+                    <div id="tab-tx-list" class="tab-content">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">All Transactions</h3>
+                            </div>
+                            <div class="card-content p-0">
+                               <table class="table">
+                                   <thead>
+                                       <tr>
+                                           <th>Date</th>
+                                           <th>Type</th>
+                                           <th class="text-right">Amount</th>
+                                           <th>Category</th>
+                                           <th>Patient</th>
+                                           <th>Notes</th>
+                                           <th class="text-right">Actions</th>
+                                       </tr>
+                                   </thead>
+                                   <tbody id="transactions-table-body">
+                                       <!-- JS will populate this -->
+                                   </tbody>
+                               </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab-tx-add" class="tab-content hidden">
+                        <div class="card">
+                            <div class="card-header"><h3 class="card-title">Add New Transaction</h3></div>
+                            <div class="card-content">
+                                <form id="transaction-form" class="space-y-8">
+                                    <div class="grid lg-grid-cols-4 gap-8">
+                                        <div class="form-item">
+                                            <label for="tx-date" class="form-label">Date</label>
+                                            <input type="date" id="tx-date" name="date" class="form-input" required>
+                                        </div>
+                                        <div class="form-item">
+                                            <label for="tx-type" class="form-label">Type</label>
+                                            <select id="tx-type" name="type" class="form-select" required>
+                                                <option>Income</option>
+                                                <option>Expense</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-item">
+                                            <label for="tx-amount" class="form-label">Amount</label>
+                                            <input type="number" id="tx-amount" name="amount" class="form-input" step="0.01" placeholder="0.00" required>
+                                        </div>
+                                        <div class="form-item">
+                                            <label for="tx-category" class="form-label">Category</label>
+                                            <select id="tx-category" name="category" class="form-select" required>
+                                                <!-- JS will populate options -->
+                                            </select>
+                                        </div>
+                                        <div class="form-item">
+                                            <label for="tx-patientName" class="form-label">Patient Name (optional)</label>
+                                            <input type="text" id="tx-patientName" name="patientName" class="form-input" placeholder="e.g., Rahul Kumar">
+                                        </div>
+                                        <div class="form-item">
+                                            <label for="tx-payment" class="form-label">Payment Method</label>
+                                            <input type="text" id="tx-payment" name="payment" class="form-input" placeholder="e.g., UPI, Cash">
+                                        </div>
+                                        <div class="form-item" style="grid-column: span 2;">
+                                            <label for="tx-notes" class="form-label">Notes (optional)</label>
+                                            <textarea id="tx-notes" name="notes" class="form-textarea" placeholder="Details about the transaction..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end gap-4">
+                                        <button type="reset" class="btn btn-outline">Reset</button>
+                                        <button type="submit" class="btn btn-primary">Save Transaction</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Appointments Page -->
+            <section id="page-appointments">
+                <div class="tabs">
+                    <div class="tabs-list">
+                        <button class="tab-trigger active" data-tab="appt-list">View Appointments</button>
+                        <button class="tab-trigger" data-tab="appt-add">Add Appointment</button>
+                    </div>
+                    <div id="tab-appt-list" class="tab-content">
+                       <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Appointments</h3>
+                            </div>
+                            <div class="card-content p-0">
+                               <table class="table">
+                                   <thead>
+                                       <tr>
+                                           <th>Date</th>
+                                           <th>Time</th>
+                                           <th>Patient</th>
+                                           <th>Reason</th>
+                                           <th class="text-right">Actions</th>
+                                       </tr>
+                                   </thead>
+                                   <tbody id="appointments-table-body">
+                                       <!-- JS will populate this -->
+                                   </tbody>
+                               </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab-appt-add" class="tab-content hidden">
+                        <div class="card">
+                            <div class="card-header"><h3 class="card-title">Add New Appointment</h3></div>
+                            <div class="card-content">
+                                <form id="appointment-form" class="space-y-8">
+                                     <div class="grid md-grid-cols-2 gap-8">
+                                        <div class="form-item">
+                                            <label for="appt-date" class="form-label">Date</label>
+                                            <input type="date" id="appt-date" name="date" class="form-input" required>
+                                        </div>
+                                         <div class="form-item">
+                                            <label for="appt-time" class="form-label">Time</label>
+                                            <input type="time" id="appt-time" name="time" class="form-input" required>
+                                        </div>
+                                         <div class="form-item">
+                                            <label for="appt-patient" class="form-label">Patient Name</label>
+                                            <input type="text" id="appt-patient" name="patient" class="form-input" required>
+                                        </div>
+                                        <div class="form-item">
+                                            <label for="appt-reason" class="form-label">Reason for visit</label>
+                                            <input type="text" id="appt-reason" name="reason" class="form-input" required>
+                                        </div>
+                                     </div>
+                                    <div class="flex justify-end gap-4">
+                                        <button type="reset" class="btn btn-outline">Reset</button>
+                                        <button type="submit" class="btn btn-primary">Save Appointment</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Prescriptions Page -->
+            <section id="page-prescriptions">
+                 <div class="tabs">
+                    <div class="tabs-list">
+                        <button class="tab-trigger active" data-tab="presc-list">View Prescriptions</button>
+                        <button class="tab-trigger" data-tab="presc-add">Add Prescription</button>
+                    </div>
+                    <div id="tab-presc-list" class="tab-content">
+                       <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">All Prescriptions</h3>
+                            </div>
+                            <div class="card-content p-0">
+                               <table class="table">
+                                   <thead>
+                                       <tr>
+                                           <th>Date</th>
+                                           <th>Patient</th>
+                                           <th>Medicine</th>
+                                           <th>Quantity</th>
+                                           <th>Notes</th>
+                                           <th class="text-right">Actions</th>
+                                       </tr>
+                                   </thead>
+                                   <tbody id="prescriptions-table-body">
+                                       <!-- JS will populate this -->
+                                   </tbody>
+                               </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab-presc-add" class="tab-content hidden">
+                        <div class="card">
+                            <div class="card-header"><h3 class="card-title">Add New Prescription</h3></div>
+                            <div class="card-content">
+                                <form id="prescription-form" class="space-y-8">
+                                     <div class="grid lg-grid-cols-3 gap-8">
+                                        <div class="form-item">
+                                            <label for="presc-date" class="form-label">Date</label>
+                                            <input type="date" id="presc-date" name="date" class="form-input" required>
+                                        </div>
+                                         <div class="form-item">
+                                            <label for="presc-patient" class="form-label">Patient Name</label>
+                                            <input type="text" id="presc-patient" name="patient" class="form-input" required>
+                                        </div>
+                                         <div class="form-item">
+                                            <label for="presc-medicine" class="form-label">Medicine</label>
+                                             <select id="presc-medicine" name="medicine" class="form-select" required></select>
+                                        </div>
+                                         <div class="form-item">
+                                            <label for="presc-quantity" class="form-label">Quantity</label>
+                                            <input type="number" id="presc-quantity" name="quantity" class="form-input" min="1" required>
+                                        </div>
+                                        <div class="form-item" style="grid-column: span 2;">
+                                            <label for="presc-notes" class="form-label">Dosage / Notes</label>
+                                            <textarea id="presc-notes" name="notes" class="form-textarea" placeholder="e.g., 1 tablet twice a day"></textarea>
+                                        </div>
+                                     </div>
+                                    <div class="flex justify-end gap-4">
+                                        <button type="reset" class="btn btn-outline">Reset</button>
+                                        <button type="submit" class="btn btn-primary">Save Prescription</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Inventory Page -->
+            <section id="page-inventory">
+                  <div class="tabs">
+                    <div class="tabs-list">
+                        <button class="tab-trigger active" data-tab="inv-list">View Inventory</button>
+                        <button class="tab-trigger" data-tab="inv-add">Add Item</button>
+                    </div>
+                    <div id="tab-inv-list" class="tab-content">
+                       <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Pharmacy Inventory</h3>
+                            </div>
+                            <div class="card-content p-0">
+                               <table class="table">
+                                   <thead>
+                                       <tr>
+                                           <th>Medicine</th>
+                                           <th>Batch</th>
+                                           <th>Expiry</th>
+                                           <th>Quantity</th>
+                                           <th class="text-right">Actions</th>
+                                       </tr>
+                                   </thead>
+                                   <tbody id="inventory-table-body">
+                                       <!-- JS will populate this -->
+                                   </tbody>
+                               </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tab-inv-add" class="tab-content hidden">
+                        <div class="card">
+                            <div class="card-header"><h3 class="card-title">Add New Inventory Item</h3></div>
+                            <div class="card-content">
+                                <form id="inventory-form" class="space-y-8">
+                                     <div class="grid md-grid-cols-2 gap-8">
+                                        <div class="form-item">
+                                            <label for="inv-name" class="form-label">Medicine Name</label>
+                                            <input type="text" id="inv-name" name="name" class="form-input" required>
+                                        </div>
+                                        <div class="form-item">
+                                            <label for="inv-batch" class="form-label">Batch No.</label>
+                                            <input type="text" id="inv-batch" name="batch" class="form-input" required>
+                                        </div>
+                                        <div class="form-item">
+                                            <label for="inv-expiry" class="form-label">Expiry Date</label>
+                                            <input type="date" id="inv-expiry" name="expiry" class="form-input" required>
+                                        </div>
+                                        <div class="form-item">
+                                            <label for="inv-quantity" class="form-label">Quantity</label>
+                                            <input type="number" id="inv-quantity" name="quantity" class="form-input" min="0" required>
+                                        </div>
+                                     </div>
+                                    <div class="flex justify-end gap-4">
+                                        <button type="reset" class="btn btn-outline">Reset</button>
+                                        <button type="submit" class="btn btn-primary">Save Item</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const App = {
+            state: {
+                transactions: [],
+                prescriptions: [],
+                inventory: [],
+                appointments: [],
+                currency: { value: 'INR', label: 'INR (₹)', symbol: '₹', locale: 'en-IN' },
+                transactionCategories: ["Consultation", "Procedure", "Diagnostics", "Pharmacy", "Supplies", "Rent", "Utilities", "Staff", "Misc"],
+            },
+
+            init() {
+                this.loadState();
+                this.initNavigation();
+                this.initTabs();
+                this.initForms();
+                this.initEventListeners();
+                this.render();
+            },
+            
+            loadState() {
+                const savedState = localStorage.getItem('clarityClinicState');
+                if (savedState) {
+                    // Deep merge to ensure new properties are added
+                    const parsedState = JSON.parse(savedState);
+                    this.state = {
+                        ...this.state,
+                        ...parsedState,
+                        transactionCategories: this.state.transactionCategories // Keep the hardcoded categories
+                    };
+                }
+            },
+
+            saveState() {
+                localStorage.setItem('clarityClinicState', JSON.stringify(this.state));
+            },
+
+            render() {
+                this.renderDashboard();
+                this.renderTransactions();
+                this.renderAppointments();
+                this.renderPrescriptions();
+                this.renderInventory();
+                this.populateSelects();
+            },
+            
+            // --- Navigation & UI ---
+            initNavigation() {
+                const sidebar = document.getElementById('app-sidebar');
+                sidebar.addEventListener('click', (e) => {
+                    const target = e.target.closest('.nav-button');
+                    if (target) {
+                        const page = target.dataset.page;
+                        this.navigateTo(page);
+                    }
+                });
+                document.getElementById('add-transaction-btn-sidebar').addEventListener('click', () => {
+                    this.navigateTo('transactions');
+                    this.switchTab('tx-add', document.querySelector('.tab-trigger[data-tab="tx-add"]'));
+                });
+            },
+            
+            navigateTo(pageId) {
+                document.querySelectorAll('.main-content > section').forEach(s => s.classList.remove('active'));
+                document.getElementById(`page-${pageId}`).classList.add('active');
+
+                document.querySelectorAll('.nav-button').forEach(b => b.classList.remove('active'));
+                document.querySelector(`.nav-button[data-page="${pageId}"]`).classList.add('active');
+            },
+
+            initTabs() {
+                const tabsContainers = document.querySelectorAll('.tabs');
+                tabsContainers.forEach(container => {
+                    const tabList = container.querySelector('.tabs-list');
+                    tabList.addEventListener('click', e => {
+                        const trigger = e.target.closest('.tab-trigger');
+                        if (trigger) {
+                            const tabId = trigger.dataset.tab;
+                            this.switchTab(tabId, trigger);
+                        }
+                    });
+                });
+            },
+
+            switchTab(tabId, trigger) {
+                const container = trigger.closest('.tabs');
+                container.querySelectorAll('.tab-trigger').forEach(t => t.classList.remove('active'));
+                trigger.classList.add('active');
+
+                container.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+                container.querySelector(`#tab-${tabId}`).classList.remove('hidden');
+            },
+            
+            initEventListeners() {
+                document.getElementById('seedData').addEventListener('click', () => this.seedData());
+                document.getElementById('clearData').addEventListener('click', () => this.clearData());
+            },
+
+            initForms() {
+                const txForm = document.getElementById('transaction-form');
+                txForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const formData = new FormData(txForm);
+                    const newTx = Object.fromEntries(formData.entries());
+                    this.addTransaction({ ...newTx, amount: parseFloat(newTx.amount) });
+                    txForm.reset();
+                    this.switchTab('tx-list', document.querySelector('.tab-trigger[data-tab="tx-list"]'));
+                });
+                
+                 const apptForm = document.getElementById('appointment-form');
+                apptForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const newAppt = Object.fromEntries(new FormData(apptForm).entries());
+                    this.addAppointment(newAppt);
+                    apptForm.reset();
+                    this.switchTab('appt-list', document.querySelector('.tab-trigger[data-tab="appt-list"]'));
+                });
+                
+                const prescForm = document.getElementById('prescription-form');
+                prescForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const newPresc = Object.fromEntries(new FormData(prescForm).entries());
+                    newPresc.quantity = parseInt(newPresc.quantity);
+                    this.addPrescription(newPresc); // Error handling is inside this method
+                    prescForm.reset();
+                });
+                
+                const invForm = document.getElementById('inventory-form');
+                invForm.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const newItem = Object.fromEntries(new FormData(invForm).entries());
+                    this.addInventoryItem({ ...newItem, quantity: parseInt(newItem.quantity) });
+                    invForm.reset();
+                    this.switchTab('inv-list', document.querySelector('.tab-trigger[data-tab="inv-list"]'));
+                });
+            },
+            
+            populateSelects() {
+                const txCategorySelect = document.getElementById('tx-category');
+                txCategorySelect.innerHTML = this.state.transactionCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+                const prescMedicineSelect = document.getElementById('presc-medicine');
+                prescMedicineSelect.innerHTML = '<option value="">Select a medicine...</option>' + 
+                    this.state.inventory.filter(i => i.quantity > 0).map(item => `<option value="${item.name}">${item.name} (${item.quantity} left)</option>`).join('');
+            },
+
+            // --- Data Methods ---
+            formatCurrency(amount) {
+                return new Intl.NumberFormat(this.state.currency.locale, {
+                    style: 'currency',
+                    currency: this.state.currency.value,
+                }).format(amount);
+            },
+            
+            addTransaction(tx) {
+                this.state.transactions.push({ ...tx, id: Date.now().toString() });
+                this.saveAndRender();
+            },
+            
+            deleteTransaction(id) {
+                if (confirm('Are you sure you want to delete this transaction?')) {
+                    this.state.transactions = this.state.transactions.filter(tx => tx.id !== id);
+                    this.saveAndRender();
+                }
+            },
+            
+            addAppointment(appt) {
+                this.state.appointments.push({ ...appt, id: Date.now().toString() });
+                this.saveAndRender();
+            },
+            
+            deleteAppointment(id) {
+                if (confirm('Are you sure?')) {
+                    this.state.appointments = this.state.appointments.filter(a => a.id !== id);
+                    this.saveAndRender();
+                }
+            },
+
+            addPrescription(presc) {
+                 const inventoryItem = this.state.inventory.find(i => i.name === presc.medicine);
+                if (!inventoryItem) {
+                    alert(`Error: Medicine "${presc.medicine}" not found in inventory.`);
+                    return;
+                }
+                if (inventoryItem.quantity < presc.quantity) {
+                    alert(`Error: Not enough stock for ${presc.medicine}. Only ${inventoryItem.quantity} left.`);
+                    return;
+                }
+
+                inventoryItem.quantity -= presc.quantity;
+                this.state.prescriptions.push({ ...presc, id: Date.now().toString() });
+                this.saveAndRender();
+                alert('Prescription saved and inventory updated.');
+                this.switchTab('presc-list', document.querySelector('.tab-trigger[data-tab="presc-list"]'));
+            },
+
+            deletePrescription(id) {
+                 if (confirm('Are you sure? This will not restock inventory.')) {
+                    this.state.prescriptions = this.state.prescriptions.filter(p => p.id !== id);
+                    this.saveAndRender();
+                }
+            },
+            
+            addInventoryItem(item) {
+                this.state.inventory.push({ ...item, id: Date.now().toString() });
+                this.saveAndRender();
+            },
+
+            deleteInventoryItem(id) {
+                 if (confirm('Are you sure?')) {
+                    this.state.inventory = this.state.inventory.filter(i => i.id !== id);
+                    this.saveAndRender();
+                }
+            },
+
+            saveAndRender() {
+                this.saveState();
+                this.render();
+            },
+            
+            // --- Rendering ---
+            renderDashboard() {
+                const income = this.state.transactions.filter(t => t.type === 'Income').reduce((sum, t) => sum + t.amount, 0);
+                const expense = this.state.transactions.filter(t => t.type === 'Expense').reduce((sum, t) => sum + t.amount, 0);
+                const net = income - expense;
+
+                document.getElementById('kpi-income').textContent = this.formatCurrency(income);
+                document.getElementById('kpi-expense').textContent = this.formatCurrency(expense);
+                const netEl = document.getElementById('kpi-net');
+                netEl.textContent = this.formatCurrency(net);
+                netEl.className = `text-3xl font-bold ${net >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+                
+                // Recent Transactions
+                const recentTxBody = document.querySelector('#dashboard-recent-tx tbody');
+                const recentTxs = [...this.state.transactions].sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+                if (recentTxs.length === 0) {
+                     recentTxBody.innerHTML = `<tr><td colspan="4" class="text-center p-8 text-muted-foreground">No transactions yet.</td></tr>`;
+                     return;
+                }
+                recentTxBody.innerHTML = recentTxs.map(tx => `
+                    <tr>
+                        <td>${tx.date}</td>
+                        <td><span class="badge ${tx.type === 'Income' ? 'badge-income' : 'badge-expense'}">${tx.type}</span></td>
+                        <td>${tx.category}</td>
+                        <td class="text-right font-medium ${tx.type === 'Income' ? 'text-emerald-400' : 'text-rose-400'}">${this.formatCurrency(tx.amount)}</td>
+                    </tr>
+                `).join('');
+            },
+
+            renderTransactions() {
+                const tableBody = document.getElementById('transactions-table-body');
+                const sortedTxs = [...this.state.transactions].sort((a,b) => new Date(b.date) - new Date(a.date));
+                if (sortedTxs.length === 0) {
+                     tableBody.innerHTML = `<tr><td colspan="7" class="text-center p-8 text-muted-foreground">No transactions found.</td></tr>`;
+                     return;
+                }
+                tableBody.innerHTML = sortedTxs.map(tx => `
+                    <tr data-id="${tx.id}">
+                        <td>${tx.date}</td>
+                        <td><span class="badge ${tx.type === 'Income' ? 'badge-income' : 'badge-expense'}">${tx.type}</span></td>
+                        <td class="text-right font-medium ${tx.type === 'Income' ? 'text-emerald-400' : 'text-rose-400'}">${this.formatCurrency(tx.amount)}</td>
+                        <td>${tx.category}</td>
+                        <td>${tx.patientName || '-'}</td>
+                        <td class="max-w-xs truncate">${tx.notes || '-'}</td>
+                        <td class="text-right">
+                           <button class="btn btn-ghost text-destructive delete-tx" data-id="${tx.id}">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                document.querySelectorAll('.delete-tx').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.deleteTransaction(e.currentTarget.dataset.id));
+                });
+            },
+            
+            renderAppointments() {
+                const tableBody = document.getElementById('appointments-table-body');
+                const sorted = [...this.state.appointments].sort((a,b) => new Date(b.date) - new Date(a.date));
+                 if (sorted.length === 0) {
+                     tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-muted-foreground">No appointments found.</td></tr>`;
+                     return;
+                }
+                tableBody.innerHTML = sorted.map(a => `
+                    <tr data-id="${a.id}">
+                        <td>${a.date}</td>
+                        <td>${a.time}</td>
+                        <td>${a.patient}</td>
+                        <td>${a.reason}</td>
+                        <td class="text-right">
+                           <button class="btn btn-ghost text-destructive delete-appt" data-id="${a.id}">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                document.querySelectorAll('.delete-appt').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.deleteAppointment(e.currentTarget.dataset.id));
+                });
+            },
+            
+            renderPrescriptions() {
+                const tableBody = document.getElementById('prescriptions-table-body');
+                const sorted = [...this.state.prescriptions].sort((a,b) => new Date(b.date) - new Date(a.date));
+                 if (sorted.length === 0) {
+                     tableBody.innerHTML = `<tr><td colspan="6" class="text-center p-8 text-muted-foreground">No prescriptions found.</td></tr>`;
+                     return;
+                }
+                tableBody.innerHTML = sorted.map(p => `
+                    <tr data-id="${p.id}">
+                        <td>${p.date}</td>
+                        <td>${p.patient}</td>
+                        <td>${p.medicine}</td>
+                        <td>${p.quantity}</td>
+                        <td>${p.notes || '-'}</td>
+                        <td class="text-right">
+                           <button class="btn btn-ghost text-destructive delete-presc" data-id="${p.id}">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                document.querySelectorAll('.delete-presc').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.deletePrescription(e.currentTarget.dataset.id));
+                });
+            },
+            
+            renderInventory() {
+                const tableBody = document.getElementById('inventory-table-body');
+                const sorted = [...this.state.inventory].sort((a,b) => a.name.localeCompare(b.name));
+                 if (sorted.length === 0) {
+                     tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-muted-foreground">No inventory items found.</td></tr>`;
+                     return;
+                }
+                tableBody.innerHTML = sorted.map(i => `
+                    <tr data-id="${i.id}">
+                        <td>${i.name}</td>
+                        <td>${i.batch}</td>
+                        <td>${i.expiry}</td>
+                        <td>${i.quantity}</td>
+                        <td class="text-right">
+                           <button class="btn btn-ghost text-destructive delete-inv" data-id="${i.id}">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                document.querySelectorAll('.delete-inv').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.deleteInventoryItem(e.currentTarget.dataset.id));
+                });
+            },
+            
+            // --- Sample Data ---
+            seedData() {
+                if (!confirm('This will add sample data. Are you sure?')) return;
+                const today = new Date();
+                const iso = (d) => d.toISOString().slice(0, 10);
+                const sampleTransactions = [
+                    { date: iso(new Date(today.getFullYear(), today.getMonth() - 1, 3)), type: 'Income', amount: 800, category: 'Consultation', patientName: 'Shreya Iyer', payment: 'UPI', notes: 'General checkup' },
+                    { date: iso(new Date(today.getFullYear(), today.getMonth() - 1, 9)), type: 'Expense', amount: 250, category: 'Supplies', notes: 'Syringes & gloves' },
+                    { date: iso(new Date(today.getFullYear(), today.getMonth(), 5)), type: 'Expense', amount: 2200, category: 'Rent', payment: 'Bank Transfer', notes: 'Clinic rent' },
+                    { date: iso(new Date(today.getFullYear(), today.getMonth(), 7)), type: 'Income', amount: 900, category: 'Consultation', patientName: 'Rahul Kumar', payment: 'UPI', notes: 'Follow-up' },
+                ];
+                const sampleInventory = [
+                    { name: 'Paracetamol 500mg', batch: 'P500-001', expiry: '2025-12-31', quantity: 200 },
+                    { name: 'Amoxicillin 250mg', batch: 'AMX-005', expiry: '2026-06-30', quantity: 150 },
+                    { name: 'Ibuprofen 200mg', batch: 'IBU-010', expiry: '2025-08-31', quantity: 300 },
+                ];
+                
+                this.state.transactions.push(...sampleTransactions.map(tx => ({...tx, id: Date.now().toString() + Math.random() })));
+                this.state.inventory.push(...sampleInventory.map(i => ({...i, id: Date.now().toString() + Math.random() })));
+                
+                this.saveAndRender();
+                alert('Sample data loaded!');
+            },
+
+            clearData() {
+                if (confirm('Are you sure you want to delete ALL data? This cannot be undone.')) {
+                    this.state = {
+                        transactions: [],
+                        prescriptions: [],
+                        inventory: [],
+                        appointments: [],
+                        currency: this.state.currency,
+                        transactionCategories: this.state.transactionCategories
+                    };
+                    this.saveAndRender();
+                    alert('All data has been cleared.');
+                }
+            },
+        };
+
+        App.init();
+    });
+    </script>
+</body>
+</html>

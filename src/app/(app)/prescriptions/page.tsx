@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useClarity } from "@/hooks/use-clarity-store";
-import { useToast } from "@/components/ui/use-toast";
+import { useClarity } from "@/hooks/use-clarity-store.tsx";
+import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

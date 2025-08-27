@@ -30,11 +30,11 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { useClarity } from "@/hooks/use-clarity-store";
+import { useClarity } from "@/hooks/use-clarity-store.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { transactionCategories } from "@/types";
 import { getCategorySuggestion } from "./actions";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   date: z.date({ required_error: "A date is required." }),

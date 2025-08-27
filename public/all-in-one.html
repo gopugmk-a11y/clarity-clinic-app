@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClarityClinic - All-In-One</title>
+    <style>
+        :root {
+            --background: 220 56% 8%;
+            --foreground: 220 14% 91%;
+            --card: 222 47% 11%;
+            --card-foreground: 220 14% 91%;
+            --popover: 222 47% 11%;
+            --popover-foreground: 220 14% 91%;
+            --primary: 195 78% 50%;
+            --primary-foreground: 220 56% 8%;
+            --secondary: 222 47% 11%;
+            --secondary-foreground: 220 14% 91%;
+            --muted: 221 18% 65%;
+            --muted-foreground: 221 18% 65%;
+            --accent: 165 48% 40%;
+            --accent-foreground: 220 56% 8%;
+            --destructive: 350 88% 70%;
+            --destructive-foreground: 0 0% 98%;
+            --border: 221 21% 28%;
+            --input: 220 43% 10%;
+            --ring: 195 78% 50%;
+            --radius: 1rem;
+            --chart-1: 195 78% 50%;
+            --chart-2: 165 48% 40%;
+            --chart-3: 350 88% 70%;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, hsl(var(--background)), #101826 40%, hsl(var(--background)));
+            color: hsl(var(--foreground));
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        main {
+            padding: 1rem 2rem;
+        }
+        .page-section {
+            display: none;
+        }
+        .page-section:target {
+            display: block;
+        }
+        /* Show the first section by default */
+        #dashboard {
+            display: block;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            background-color: hsla(var(--background), 0.8);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid hsl(var(--border));
+        }
+        .header .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: white;
+        }
+        .header .logo {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 0.5rem;
+            border: 1px solid hsla(var(--border), 0.5);
+            background: linear-gradient(to bottom right, hsla(195, 78%, 50%, 0.2), transparent, hsla(145, 78%, 50%, 0.2));
+        }
+        .header .logo svg {
+            width: 20px;
+            height: 20px;
+            stroke: hsl(var(--primary));
+            stroke-width: 2.5;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background-color: hsl(var(--card));
+            border-bottom: 1px solid hsl(var(--border));
+        }
+        nav a {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            color: hsl(var(--muted-foreground));
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        nav a:hover {
+            color: hsl(var(--foreground));
+            background-color: hsla(var(--primary), 0.1);
+        }
+        .card {
+            background-color: hsl(var(--card));
+            border-radius: 1rem;
+            border: 1px solid hsl(var(--border));
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            margin-bottom: 1.5rem;
+        }
+        .card-header { padding: 1.5rem; border-bottom: 1px solid hsl(var(--border)); }
+        .card-title { font-size: 1.5rem; font-weight: 600; margin: 0; }
+        .card-description { font-size: 0.875rem; color: hsl(var(--muted-foreground)); margin-top: 0.25rem; }
+        .card-content { padding: 1.5rem; }
+        .card-footer { padding: 1.5rem; border-top: 1px solid hsl(var(--border)); }
+        .grid { display: grid; gap: 1.5rem; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .table { width: 100%; border-collapse: collapse; text-align: left; }
+        .table th, .table td { padding: 1rem; border-bottom: 1px solid hsl(var(--border)); }
+        .table th { font-weight: 500; color: hsl(var(--muted-foreground)); }
+        .table tr:last-child td { border-bottom: none; }
+        .table tr:hover { background-color: hsla(var(--muted), 0.1); }
+        .badge { display: inline-flex; align-items: center; padding: 0.25em 0.75em; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .badge.income { background-color: hsla(145, 88%, 70%, 0.2); color: hsl(145, 88%, 70%); }
+        .badge.expense { background-color: hsla(350, 88%, 70%, 0.2); color: hsl(350, 88%, 70%); }
+        .badge.default { background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+        .badge.secondary { background-color: hsl(var(--secondary)); color: hsl(var(--secondary-foreground)); }
+        .badge.destructive { background-color: hsl(var(--destructive)); color: hsl(var(--destructive-foreground)); }
+        .text-emerald-400 { color: hsl(145, 88%, 70%); }
+        .text-rose-400 { color: hsl(350, 88%, 70%); }
+        .text-cyan-400 { color: hsl(195, 78%, 50%); }
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid hsl(var(--input));
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            transition: all 0.2s;
+        }
+        .button:hover { background-color: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+        .button-primary { background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); border-color: hsl(var(--primary));}
+        .button-primary:hover { background-color: hsla(var(--primary), 0.9); }
+        .button-destructive { background-color: hsl(var(--destructive)); color: hsl(var(--destructive-foreground)); border-color: hsl(var(--destructive));}
+        .button-destructive:hover { background-color: hsla(var(--destructive), 0.9); }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            height: 2.5rem;
+            padding: 0 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid hsl(var(--input));
+            background-color: hsl(var(--background));
+            color: hsl(var(--foreground));
+            font-size: 0.875rem;
+        }
+        .form-group textarea { height: auto; min-height: 80px; }
+        .form-group input:focus { outline: none; border-color: hsl(var(--ring)); box-shadow: 0 0 0 2px hsl(var(--ring)); }
+        @media (max-width: 768px) {
+            .grid-cols-3, .grid-cols-2, .grid-cols-4 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+            main { padding: 1rem; }
+            nav { justify-content: center; }
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="logo-container">
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20M2 12h20"></path>
+                </svg>
+            </div>
+            <h1>ClarityClinic</h1>
+        </div>
+    </header>
+    <nav>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#transactions">Transactions</a>
+        <a href="#appointments">Appointments</a>
+        <a href="#prescriptions">Prescriptions</a>
+        <a href="#inventory">Inventory</a>
+        <a href="#patients">Patients</a>
+        <a href="#reports">Reports</a>
+    </nav>
+    <main>
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="page-section">
+            <div class="grid grid-cols-3">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Total Income</h3></div>
+                    <div class="card-content"><p class="text-3xl font-bold text-emerald-400">₹8,500.00</p></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Total Expenses</h3></div>
+                    <div class="card-content"><p class="text-3xl font-bold text-rose-400">₹4,900.00</p></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title">Net Income</h3></div>
+                    <div class="card-content"><p class="text-3xl font-bold text-cyan-400">₹3,600.00</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transactions Section -->
+        <section id="transactions" class="page-section">
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">All Transactions</h2></div>
+                <div class="card-content">
+                    <table class="table">
+                        <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Category</th><th>Patient</th><th>Payment</th></tr></thead>
+                        <tbody>
+                            <tr><td>2023-10-14</td><td><span class="badge expense">Expense</span></td><td>₹300.00</td><td>Supplies</td><td>-</td><td>Card</td></tr>
+                            <tr><td>2023-10-11</td><td><span class="badge income">Income</span></td><td>₹1,400.00</td><td>Pharmacy</td><td>Aisha Khan</td><td>Cash</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">Add New Transaction</h2></div>
+                <div class="card-content">
+                    <form class="grid grid-cols-4 gap-4">
+                        <div class="form-group"><label for="tx-date">Date</label><input type="date" id="tx-date"></div>
+                        <div class="form-group"><label for="tx-type">Type</label><select id="tx-type"><option>Income</option><option>Expense</option></select></div>
+                        <div class="form-group"><label for="tx-amount">Amount</label><input type="number" id="tx-amount"></div>
+                        <div class="form-group"><label for="tx-category">Category</label><select id="tx-category"><option>Consultation</option><option>Supplies</option></select></div>
+                        <div class="form-group"><label for="tx-patient">Patient Name</label><input type="text" id="tx-patient"></div>
+                        <div class="form-group"><label for="tx-payment">Payment</label><select id="tx-payment"><option>Cash</option><option>Card</option></select></div>
+                        <div class="form-group" style="grid-column: span 2;"><label for="tx-notes">Notes</label><textarea id="tx-notes"></textarea></div>
+                    </form>
+                </div>
+                <div class="card-footer" style="text-align: right;"><button class="button button-primary">Save Transaction</button></div>
+            </div>
+        </section>
+
+        <!-- Appointments Section -->
+        <section id="appointments" class="page-section">
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">All Appointments</h2></div>
+                <div class="card-content">
+                    <table class="table">
+                        <thead><tr><th>Date</th><th>Time</th><th>Patient</th><th>Doctor</th><th>Reason</th><th>Status</th></tr></thead>
+                        <tbody><tr><td>2023-10-28</td><td>11:00 AM</td><td>Rohan Sharma</td><td>Dr. Gupta</td><td>Annual Checkup</td><td><span class="badge secondary">Confirmed</span></td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+             <div class="card">
+                <div class="card-header"><h2 class="card-title">Add New Appointment</h2></div>
+                <div class="card-content">
+                    <form class="grid grid-cols-3 gap-4">
+                        <div class="form-group"><label for="appt-date">Date</label><input type="date" id="appt-date"></div>
+                        <div class="form-group"><label for="appt-time">Time</label><input type="time" id="appt-time"></div>
+                        <div class="form-group"><label for="appt-patient">Patient Name</label><input type="text" id="appt-patient"></div>
+                        <div class="form-group"><label for="appt-doctor">Doctor</label><select id="appt-doctor"><option>Dr. Sharma</option><option>Dr. Patel</option></select></div>
+                        <div class="form-group" style="grid-column: span 2;"><label for="appt-reason">Reason for Visit</label><input type="text" id="appt-reason"></div>
+                        <div class="form-group"><label for="appt-status">Status</label><select id="appt-status"><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select></div>
+                    </form>
+                </div>
+                <div class="card-footer" style="text-align: right;"><button class="button button-primary">Save Appointment</button></div>
+            </div>
+        </section>
+
+        <!-- Prescriptions Section -->
+        <section id="prescriptions" class="page-section">
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">All Prescriptions</h2></div>
+                <div class="card-content">
+                     <table class="table">
+                        <thead><tr><th>Date</th><th>Doctor</th><th>Patient</th><th>Medicine</th><th>Quantity</th><th>Notes</th></tr></thead>
+                        <tbody><tr><td>2023-10-26</td><td>Dr. Sharma</td><td>Priya Singh</td><td>Paracetamol 500mg</td><td>10</td><td>1 tablet twice a day</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+             <div class="card">
+                <div class="card-header"><h2 class="card-title">Add New Prescription</h2></div>
+                <div class="card-content">
+                     <form class="grid grid-cols-3 gap-4">
+                        <div class="form-group"><label for="rx-date">Date</label><input type="date" id="rx-date"></div>
+                        <div class="form-group"><label for="rx-doctor">Doctor Name</label><input type="text" id="rx-doctor"></div>
+                        <div class="form-group"><label for="rx-patient">Patient Name</label><input type="text" id="rx-patient"></div>
+                        <div class="form-group"><label for="rx-medicine">Medicine</label><select id="rx-medicine"><option>Amoxicillin (50 left)</option><option>Ibuprofen (120 left)</option></select></div>
+                        <div class="form-group"><label for="rx-qty">Quantity</label><input type="number" id="rx-qty"></div>
+                        <div class="form-group" style="grid-column: span 3;"><label for="rx-notes">Dosage / Notes</label><textarea id="rx-notes"></textarea></div>
+                    </form>
+                </div>
+                <div class="card-footer" style="text-align: right;"><button class="button button-primary">Save Prescription</button></div>
+            </div>
+        </section>
+
+        <!-- Inventory Section -->
+        <section id="inventory" class="page-section">
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">Pharmacy Inventory</h2></div>
+                <div class="card-content">
+                    <table class="table">
+                        <thead><tr><th>Medicine</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Supplier</th></tr></thead>
+                        <tbody><tr><td>Paracetamol 500mg</td><td>B-12345</td><td>2025-12-31</td><td>150</td><td>Pharma Inc.</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+             <div class="card">
+                <div class="card-header"><h2 class="card-title">Add New Item</h2></div>
+                <div class="card-content">
+                     <form class="grid grid-cols-2 gap-4">
+                        <div class="form-group"><label for="inv-name">Medicine Name</label><input type="text" id="inv-name"></div>
+                        <div class="form-group"><label for="inv-batch">Batch No.</label><input type="text" id="inv-batch"></div>
+                        <div class="form-group"><label for="inv-expiry">Expiry</label><input type="date" id="inv-expiry"></div>
+                        <div class="form-group"><label for="inv-qty">Quantity</label><input type="number" id="inv-qty"></div>
+                        <div class="form-group"><label for="inv-supplier">Supplier</label><input type="text" id="inv-supplier"></div>
+                    </form>
+                </div>
+                <div class="card-footer" style="text-align: right;"><button class="button button-primary">Save Item</button></div>
+            </div>
+        </section>
+
+        <!-- Patients Section -->
+        <section id="patients" class="page-section">
+            <div class="card">
+                <div class="card-header"><h2 class="card-title">Patients</h2></div>
+                <div class="card-content">
+                    <table class="table">
+                        <thead><tr><th>Patient</th><th>Patient ID</th><th>Phone</th><th>Last Visit</th><th>Transactions</th></tr></thead>
+                        <tbody><tr><td>Shreya Iyer</td><td>P-1001</td><td>90000 11111</td><td>2023-08-03</td><td>1</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Reports Section -->
+        <section id="reports" class="page-section">
+             <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Profit & Loss Statement</h2>
+                    <p class="card-description">Select a date range to generate a financial report.</p>
+                </div>
+                <div class="card-content" style="display: flex; gap: 1rem; align-items: center;">
+                    <div class="form-group">
+                        <label for="report-start">Start Date</label>
+                        <input type="date" id="report-start">
+                    </div>
+                     <div class="form-group">
+                        <label for="report-end">End Date</label>
+                        <input type="date" id="report-end">
+                    </div>
+                    <button class="button" style="margin-top: 1rem;">Generate Report</button>
+                </div>
+            </div>
+             <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Report Results</h2>
+                    <p class="card-description">Showing data from Oct 1, 2023 to Oct 31, 2023</p>
+                </div>
+                 <div class="card-content">
+                     <table class="table">
+                         <thead>
+                            <tr><th>Description</th><th style="text-align: right;">Amount</th></tr>
+                         </thead>
+                         <tbody>
+                            <tr style="font-weight: bold;"><td colspan="2">Income</td></tr>
+                            <tr><td style="padding-left: 2rem;">Consultation</td><td style="text-align: right;">₹5,000.00</td></tr>
+                            <tr><td style="padding-left: 2rem;">Procedure</td><td style="text-align: right;">₹10,000.00</td></tr>
+                            <tr style="font-weight: bold;"><td style="padding-left: 2rem;">Total Income</td><td style="text-align: right;" class="text-emerald-400">₹15,000.00</td></tr>
+                            
+                            <tr style="font-weight: bold;"><td colspan="2">Expenses</td></tr>
+                            <tr><td style="padding-left: 2rem;">Rent</td><td style="text-align: right;">₹8,000.00</td></tr>
+                            <tr><td style="padding-left: 2rem;">Supplies</td><td style="text-align: right;">₹2,500.00</td></tr>
+                            <tr style="font-weight: bold;"><td style="padding-left: 2rem;">Total Expenses</td><td style="text-align: right;" class="text-rose-400">₹10,500.00</td></tr>
+                         </tbody>
+                         <tfoot>
+                             <tr style="font-weight: bold; border-top: 2px solid hsl(var(--primary));">
+                                 <td>Net Profit / Loss</td>
+                                 <td style="text-align: right;" class="text-emerald-400">₹4,500.00</td>
+                             </tr>
+                         </tfoot>
+                     </table>
+                 </div>
+             </div>
+        </section>
+    </main>
+
+    <script>
+      // Simple script to handle default view
+      document.addEventListener('DOMContentLoaded', function() {
+        if (!window.location.hash) {
+            window.location.hash = '#dashboard';
+        }
+        // When navigating back/forward
+        window.addEventListener('hashchange', function() {
+            // This is handled by :target, but we can add more logic here if needed
+        });
+      });
+    </script>
+</body>
+</html>

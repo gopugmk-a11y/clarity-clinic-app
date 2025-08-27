@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   Archive,
+  BarChart,
   CalendarClock,
   CircleHelp,
   FileText,
@@ -38,6 +39,7 @@ const navItems = [
   { href: '/prescriptions', label: 'Prescriptions', icon: FileText },
   { href: '/inventory', label: 'Inventory', icon: Archive },
   { href: '/patients', label: 'Patients', icon: Users },
+  { href: '/reports', label: 'Reports', icon: BarChart },
 ];
 
 export function AppSidebar() {

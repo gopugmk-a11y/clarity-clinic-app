@@ -4,7 +4,7 @@
 import { useClarity } from "@/hooks/use-clarity-store";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Archive, CalendarClock, Download, FileText, LayoutGrid, List, Menu, Plus, Search, Users } from "lucide-react";
+import { Archive, BarChart, CalendarClock, Download, FileText, LayoutGrid, List, Menu, Plus, Search, Users } from "lucide-react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Logo } from "../logo";
@@ -17,6 +17,7 @@ const navItems = [
     { href: '/prescriptions', label: 'Prescriptions', icon: FileText },
     { href: '/inventory', label: 'Inventory', icon: Archive },
     { href: '/patients', label: 'Patients', icon: Users },
+    { href: '/reports', label: 'Reports', icon: BarChart },
 ];
 
 export function AppHeader() {

@@ -61,7 +61,7 @@ export default function AddTransactionPage() {
     defaultValues: {
       date: new Date(),
       type: "Income",
-      amount: undefined,
+      amount: 0,
       category: "",
       patientName: "",
       patientId: "",
@@ -170,7 +170,7 @@ export default function AddTransactionPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Amount</FormLabel>
-                    <FormControl><Input type="number" step="0.01" placeholder="0.00" {...field} /></FormControl>
+                    <FormControl><Input type="number" step="0.01" placeholder="0.00" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

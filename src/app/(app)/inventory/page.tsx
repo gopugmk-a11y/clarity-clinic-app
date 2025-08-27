@@ -51,7 +51,7 @@ export default function InventoryPage() {
     defaultValues: {
       name: "",
       batch: "",
-      expiry: undefined,
+      expiry: new Date(),
       quantity: 0,
       supplier: "",
     },
@@ -63,7 +63,7 @@ export default function InventoryPage() {
       expiry: format(values.expiry, 'yyyy-MM-dd'),
     });
     toast({ title: "Inventory item added!" });
-    form.reset({ name: "", batch: "", expiry: undefined, quantity: 0, supplier: "" });
+    form.reset({ name: "", batch: "", expiry: new Date(), quantity: 0, supplier: "" });
   }
 
   return (
@@ -163,7 +163,7 @@ export default function InventoryPage() {
                     )}
                   />
                   <FormField control={form.control} name="quantity" render={({ field }) => (
-                    <FormItem><FormLabel>Quantity</FormLabel><FormControl><Input type="number" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Quantity</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="supplier" render={({ field }) => (
                     <FormItem className="md:col-span-2"><FormLabel>Supplier</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>

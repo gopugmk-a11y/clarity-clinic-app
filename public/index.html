@@ -1,86 +1,89 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClarityClinic - Static Pages</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --background: 220 56% 8%;
-            --foreground: 220 14% 91%;
-            --card: 222 47% 11%;
-            --card-foreground: 220 14% 91%;
-            --primary: 195 78% 50%;
-            --border: 221 21% 28%;
-            --radius: 1rem;
-        }
         body {
-            background-color: hsl(var(--background));
-            color: hsl(var(--foreground));
             font-family: 'Inter', sans-serif;
-            background-image: linear-gradient(180deg, hsl(var(--background)), #101826 40%, hsl(var(--background)));
+            background-color: #0c121e;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-        .card { 
-            background-color: hsl(var(--card)); 
-            border: 1px solid hsl(var(--border)); 
-            border-radius: var(--radius);
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #22BBD3;
+            margin-bottom: 1rem;
+        }
+        p {
+            color: #94a3b8;
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        a {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            text-decoration: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
             transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .card:hover {
-            border-color: hsl(var(--primary) / 0.8);
-            transform: translateY(-4px);
+        a:hover {
+            background-color: #334155;
+            border-color: #22BBD3;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        footer {
+            margin-top: 3rem;
+            font-size: 0.875rem;
+            color: #64748b;
         }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;800&display=swap" rel="stylesheet">
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
-    <header class="text-center mb-10">
-        <h1 class="text-5xl font-extrabold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
-            ClarityClinic Static Pages
-        </h1>
-        <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-400">
-            This is a directory of all the static HTML pages generated for the application.
-        </p>
-    </header>
-
-    <main class="w-full max-w-4xl">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <a href="/dashboard.html" class="card block p-6">
-                <h2 class="text-2xl font-bold mb-2 text-white">Dashboard</h2>
-                <p class="text-gray-400">View financial overview and key performance indicators.</p>
-            </a>
-            <a href="/transactions.html" class="card block p-6">
-                <h2 class="text-2xl font-bold mb-2 text-white">Transactions</h2>
-                <p class="text-gray-400">Browse and manage all income and expense records.</p>
-            </a>
-            <a href="/appointments.html" class="card block p-6">
-                <h2 class="text-2xl font-bold mb-2 text-white">Appointments</h2>
-                <p class="text-gray-400">Schedule and manage patient appointments.</p>
-            </a>
-            <a href="/prescriptions.html" class="card block p-6">
-                <h2 class="text-2xl font-bold mb-2 text-white">Prescriptions</h2>
-                <p class="text-gray-400">Create and view patient medical prescriptions.</p>
-            </a>
-            <a href="/inventory.html" class="card block p-6">
-                <h2 class="text-2xl font-bold mb-2 text-white">Inventory</h2>
-                <p class="text-gray-400">Manage pharmacy inventory and supplies.</p>
-            </a>
-            <a href="/patients.html" class="card block p-6">
-                <h2 class="text-2xl font-bold mb-2 text-white">Patients</h2>
-                <p class="text-gray-400">View a list of patients and their history.</p>
-            </a>
-            <a href="/reports.html" class="card block p-6">
-                <h2 class="text-2xl font-bold mb-2 text-white">Reports</h2>
-                <p class="text-gray-400">Generate financial Profit & Loss reports.</p>
-            </a>
+<body>
+    <div class="container">
+        <h1>ClarityClinic Static Pages</h1>
+        <p>This is a directory of all the static HTML pages generated for the application.</p>
+        <div class="link-grid">
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/transactions.html">Transactions</a>
+            <a href="/appointments.html">Appointments</a>
+            <a href="/prescriptions.html">Prescriptions</a>
+            <a href="/inventory.html">Inventory</a>
+            <a href="/patients.html">Patients</a>
+            <a href="/reports.html">Reports</a>
         </div>
-    </main>
-
-    <footer class="mt-12 text-center text-gray-500 text-sm">
-        <p>&copy; 2023 ClarityClinic. All Rights Reserved.</p>
-    </footer>
+        <footer>
+            <p>&copy; 2023 ClarityClinic. These are static, non-functional pages.</p>
+        </footer>
+    </div>
 </body>
 </html>

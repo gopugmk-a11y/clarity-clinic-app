@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { type Transaction, type Prescription, type InventoryItem, type Currency, currencies } from '@/types';
+import { type Transaction, type Prescription, type InventoryItem, type Appointment, type Currency, currencies } from '@/types';
 import { sampleTransactions } from '@/lib/seed-data';
 import { useToast } from './use-toast';
 import React from 'react';
@@ -25,6 +25,7 @@ type ClarityStore = {
   transactions: Transaction[];
   prescriptions: Prescription[];
   inventory: InventoryItem[];
+  appointments: Appointment[];
   currency: Currency;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -35,6 +36,8 @@ type ClarityStore = {
   deletePrescription: (id: string) => Promise<void>;
   addInventoryItem: (item: Omit<InventoryItem, 'id' | 'price'> & { price?: number }) => Promise<void>;
   deleteInventoryItem: (id: string) => Promise<void>;
+  addAppointment: (appt: Omit<Appointment, 'id'>) => Promise<void>;
+  deleteAppointment: (id: string) => Promise<void>;
   seedData: () => Promise<void>;
   clearData: () => Promise<void>;
 };
@@ -43,6 +46,7 @@ export const useClarityStore = (): ClarityStore => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [currency, setCurrency] = useState<Currency>(currencies[0]);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
@@ -67,10 +71,17 @@ export const useClarityStore = (): ClarityStore => {
         setInventory(data);
     });
 
+    const aQuery = query(collection(db, 'appointments'), orderBy('date', 'desc'));
+    const unsubscribeA = onSnapshot(aQuery, (snapshot) => {
+        const data: Appointment[] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
+        setAppointments(data);
+    });
+
     return () => {
       unsubscribeTx();
       unsubscribeP();
       unsubscribeI();
+      unsubscribeA();
     }
   }, []);
 
@@ -120,6 +131,16 @@ export const useClarityStore = (): ClarityStore => {
     if(!db) return;
     await deleteDoc(doc(db, "inventory", id));
   };
+
+  const addAppointment = async (appt: Omit<Appointment, 'id'>) => {
+    if(!db) return;
+    await addDoc(collection(db, "appointments"), appt);
+  };
+
+  const deleteAppointment = async (id: string) => {
+    if(!db) return;
+    await deleteDoc(doc(db, "appointments", id));
+  };
   
   const seedData = useCallback(async () => {
     if(!db) {
@@ -145,7 +166,7 @@ export const useClarityStore = (): ClarityStore => {
         return;
     }
     try {
-        const collections = ['transactions', 'prescriptions', 'inventory'];
+        const collections = ['transactions', 'prescriptions', 'inventory', 'appointments'];
         const batch = writeBatch(db);
         for (const c of collections) {
             const querySnapshot = await getDocs(collection(db, c));
@@ -165,6 +186,7 @@ export const useClarityStore = (): ClarityStore => {
     transactions,
     prescriptions,
     inventory,
+    appointments,
     currency,
     searchQuery,
     setSearchQuery,
@@ -175,6 +197,8 @@ export const useClarityStore = (): ClarityStore => {
     deletePrescription,
     addInventoryItem,
     deleteInventoryItem,
+    addAppointment,
+    deleteAppointment,
     seedData,
     clearData,
   };

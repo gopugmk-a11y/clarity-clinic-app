@@ -1,4 +1,5 @@
 
+
 export type Transaction = {
   id: string;
   date: string;
@@ -34,6 +35,19 @@ export type InventoryItem = {
   price?: number;
   supplier?: string;
 };
+
+export const appointmentStatuses = ["Confirmed", "Completed", "Cancelled"] as const;
+
+export type Appointment = {
+    id: string;
+    date: string;
+    time: string;
+    patient: string;
+    doctor: string;
+    reason: string;
+    status: (typeof appointmentStatuses)[number];
+    notes?: string;
+}
 
 export type Currency = {
   value: 'INR' | 'USD' | 'EUR' | 'GBP';

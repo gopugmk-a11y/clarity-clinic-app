@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
   Archive,
+  CalendarClock,
   CircleHelp,
   FileText,
   Home,
@@ -33,6 +34,7 @@ import { Separator } from '../ui/separator';
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
   { href: '/transactions', label: 'Transactions', icon: List },
+  { href: '/appointments', label: 'Appointments', icon: CalendarClock },
   { href: '/prescriptions', label: 'Prescriptions', icon: FileText },
   { href: '/inventory', label: 'Inventory', icon: Archive },
   { href: '/patients', label: 'Patients', icon: Users },

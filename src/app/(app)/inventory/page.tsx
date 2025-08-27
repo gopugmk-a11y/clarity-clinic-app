@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useClarity } from "@/hooks/use-clarity-store.tsx";
+import { useClarity } from "@/hooks/use-clarity-store";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -37,6 +38,7 @@ const formSchema = z.object({
   batch: z.string().min(1, "Batch number is required."),
   expiry: z.date({ required_error: "Expiry date is required." }),
   quantity: z.coerce.number().int().min(0, "Quantity must be a positive number."),
+  price: z.coerce.number().min(0, "Price must be a positive number.").optional(),
   supplier: z.string().optional(),
 });
 
@@ -53,6 +55,7 @@ export default function InventoryPage() {
       batch: "",
       expiry: new Date(),
       quantity: 0,
+      price: 0,
       supplier: "",
     },
   });
@@ -63,7 +66,7 @@ export default function InventoryPage() {
       expiry: format(values.expiry, 'yyyy-MM-dd'),
     });
     toast({ title: "Inventory item added!" });
-    form.reset({ name: "", batch: "", expiry: new Date(), quantity: 0, supplier: "" });
+    form.reset({ name: "", batch: "", expiry: new Date(), quantity: 0, price: 0, supplier: "" });
   }
 
   return (
@@ -165,8 +168,11 @@ export default function InventoryPage() {
                   <FormField control={form.control} name="quantity" render={({ field }) => (
                     <FormItem><FormLabel>Quantity</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} /></FormControl><FormMessage /></FormItem>
                   )} />
+                  <FormField control={form.control} name="price" render={({ field }) => (
+                    <FormItem><FormLabel>Total Price (optional)</FormLabel><FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(e.target.valueAsNumber)} /></FormControl><FormMessage /></FormItem>
+                  )} />
                   <FormField control={form.control} name="supplier" render={({ field }) => (
-                    <FormItem className="md:col-span-2"><FormLabel>Supplier</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Supplier (optional)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
                 <div className="flex justify-end gap-4">

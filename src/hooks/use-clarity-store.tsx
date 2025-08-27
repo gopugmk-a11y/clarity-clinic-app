@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
@@ -5,6 +6,7 @@ import { type Transaction, type Prescription, type InventoryItem, type Currency,
 import { sampleTransactions } from '@/lib/seed-data';
 import { useToast } from './use-toast';
 import React from 'react';
+import { format } from 'date-fns';
 
 const useLocalStorage = <T,>(key: string, initialValue: T): [T, (value: T) => void] => {
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -46,7 +48,7 @@ type ClarityStore = {
   deleteTransaction: (id: string) => void;
   addPrescription: (p: Omit<Prescription, 'id'>) => void;
   deletePrescription: (id: string) => void;
-  addInventoryItem: (item: Omit<InventoryItem, 'id'>) => void;
+  addInventoryItem: (item: Omit<InventoryItem, 'id' | 'price'> & { price?: number }) => void;
   deleteInventoryItem: (id: string) => void;
   seedData: () => void;
   clearData: () => void;
@@ -78,9 +80,25 @@ export const useClarityStore = (): ClarityStore => {
     setPrescriptions(prescriptions.filter((p) => p.id !== id));
   };
 
-  const addInventoryItem = (item: Omit<InventoryItem, 'id'>) => {
-    const newItem = { ...item, id: crypto.randomUUID() };
+  const addInventoryItem = (item: Omit<InventoryItem, 'id' | 'price'> & { price?: number }) => {
+    const { price, ...rest } = item;
+    const newItem = { ...rest, id: crypto.randomUUID() };
     setInventory([newItem, ...inventory]);
+
+    if (price && price > 0) {
+      addTransaction({
+        date: format(new Date(), 'yyyy-MM-dd'),
+        type: 'Expense',
+        amount: price,
+        category: 'Supplies',
+        payment: 'Cash', // Default payment method for inventory purchases
+        notes: `Purchased ${item.quantity} x ${item.name}`,
+      });
+      toast({
+        title: "Transaction Created",
+        description: `An expense of ${price} for "${item.name}" has been recorded.`
+      });
+    }
   };
 
   const deleteInventoryItem = (id: string) => {

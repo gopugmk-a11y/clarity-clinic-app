@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,8 +31,9 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, Loader2, MoreHorizontal, Trash2 } from "lucide-react";
+import { CalendarIcon, Loader2, MoreHorizontal, Search, Trash2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   date: z.date({ required_error: "A date is required." }),
@@ -44,8 +46,9 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function PrescriptionsPage() {
-  const { prescriptions, addPrescription, deletePrescription } = useClarity();
+  const { prescriptions, addPrescription, deletePrescription, setSearchQuery } = useClarity();
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -66,6 +69,11 @@ export default function PrescriptionsPage() {
     toast({ title: "Prescription saved!" });
     form.reset({ date: new Date(), doctor: "", patient: "", medicine: "", notes: "" });
   }
+  
+  const handleMedicineClick = (medicine: string) => {
+    setSearchQuery(medicine);
+    router.push('/inventory');
+  };
 
   return (
     <Tabs defaultValue="list">
@@ -97,7 +105,12 @@ export default function PrescriptionsPage() {
                       <TableCell>{p.date}</TableCell>
                       <TableCell>{p.doctor}</TableCell>
                       <TableCell>{p.patient}</TableCell>
-                      <TableCell>{p.medicine}</TableCell>
+                      <TableCell>
+                        <Button variant="link" className="p-0 h-auto" onClick={() => handleMedicineClick(p.medicine)}>
+                          {p.medicine}
+                          <Search className="ml-2 h-3 w-3" />
+                        </Button>
+                      </TableCell>
                       <TableCell className="max-w-xs truncate">{p.notes || '-'}</TableCell>
                       <TableCell className="text-right">
                         <DropdownMenu>

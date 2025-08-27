@@ -1,3 +1,4 @@
+
 "use client";
 
 import { usePathname } from 'next/navigation';
@@ -12,6 +13,7 @@ import {
   Plus,
   Trash2,
   Upload,
+  Users,
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -31,9 +33,9 @@ import { Separator } from '../ui/separator';
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
   { href: '/transactions', label: 'Transactions', icon: List },
-  { href: '/transactions/add', label: 'Add Transaction', icon: Plus },
   { href: '/prescriptions', label: 'Prescriptions', icon: FileText },
   { href: '/inventory', label: 'Inventory', icon: Archive },
+  { href: '/patients', label: 'Patients', icon: Users },
 ];
 
 export function AppSidebar() {
@@ -73,6 +75,13 @@ export function AppSidebar() {
       </nav>
 
       <div className="mt-auto flex flex-col gap-3">
+         <Button asChild variant="ghost" className="justify-start gap-3 h-11 text-base">
+          <Link href="/transactions/add">
+            <Plus className="h-5 w-5" />
+            Add Transaction
+          </Link>
+        </Button>
+        <Separator className="my-2" />
         <Button onClick={seedData} variant="outline" className="justify-start gap-3">
           <Upload className="h-4 w-4" /> Load Sample Data
         </Button>

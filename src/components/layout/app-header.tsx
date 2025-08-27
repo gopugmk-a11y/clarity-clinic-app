@@ -1,9 +1,10 @@
+
 "use client";
 
 import { useClarity } from "@/hooks/use-clarity-store";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Archive, Download, FileText, LayoutGrid, List, Menu, Plus, Search } from "lucide-react";
+import { Archive, Download, FileText, LayoutGrid, List, Menu, Plus, Search, Users } from "lucide-react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Logo } from "../logo";
@@ -12,9 +13,9 @@ import { Separator } from "../ui/separator";
 const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
     { href: '/transactions', label: 'Transactions', icon: List },
-    { href: '/transactions/add', label: 'Add Transaction', icon: Plus },
     { href: '/prescriptions', label: 'Prescriptions', icon: FileText },
     { href: '/inventory', label: 'Inventory', icon: Archive },
+    { href: '/patients', label: 'Patients', icon: Users },
 ];
 
 export function AppHeader() {

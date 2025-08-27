@@ -1,3 +1,4 @@
+
 export type Transaction = {
   id: string;
   date: string;
@@ -30,6 +31,7 @@ export type InventoryItem = {
   batch: string;
   expiry: string;
   quantity: number;
+  price?: number;
   supplier?: string;
 };
 
